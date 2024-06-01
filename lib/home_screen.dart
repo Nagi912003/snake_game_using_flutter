@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:snake_game/pixel.dart';
@@ -31,8 +32,9 @@ class _HomeScreenState extends State<HomeScreen> {
   void startGame() {
     Timer.periodic(Duration(milliseconds: 200), (timer) {
       setState(() {
-        // move the snake
+        // keep the snake moving
         moveSnake();
+
       });
     });
   }
@@ -70,8 +72,22 @@ class _HomeScreenState extends State<HomeScreen> {
         }
         break;
     }
-    // remove the tail
-    snakePositions.removeAt(0);
+    // snake eats the food
+    if (snakePositions.last == foodPosition) {
+      // generate new food
+      eatFood();
+    } else {
+      // remove the tail
+      snakePositions.removeAt(0);
+    }
+  }
+
+  // eatFood
+  void eatFood() {
+    // the food is not on the snake
+    while (snakePositions.contains(foodPosition)) {
+      foodPosition = Random().nextInt(totalNumberOfCells);
+    }
   }
 
   @override
