@@ -11,6 +11,8 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
+enum snakeDirection { up, down, left, right }
+
 class _HomeScreenState extends State<HomeScreen> {
   // grid dimensions
   int rowSize = 10;
@@ -19,20 +21,57 @@ class _HomeScreenState extends State<HomeScreen> {
   // snake position
   List<int> snakePositions = [0, 1, 2];
 
+  // snake direction is initially right
+  snakeDirection currentDirection = snakeDirection.right;
+
   // food position
   int foodPosition = 55;
 
   // start the game
-  void startGame(){
+  void startGame() {
     Timer.periodic(Duration(milliseconds: 200), (timer) {
       setState(() {
         // move the snake
-        // add a new head
-        snakePositions.add( snakePositions.last + 1);
-        // remove the tail
-        snakePositions.removeAt(0);
+        moveSnake();
       });
     });
+  }
+
+  void moveSnake() {
+    switch (currentDirection) {
+      case snakeDirection.up:
+        if(snakePositions.last < rowSize){
+          snakePositions.add(snakePositions.last + totalNumberOfCells - rowSize);
+        } else {
+          snakePositions.add(snakePositions.last - rowSize);
+        }
+        break;
+      case snakeDirection.down:
+        if(snakePositions.last >= totalNumberOfCells - rowSize){
+          snakePositions.add(snakePositions.last - totalNumberOfCells + rowSize);
+        } else {
+          snakePositions.add(snakePositions.last + rowSize);
+        }
+        break;
+      case snakeDirection.left:
+        //if the snake is at the left edge
+        if (snakePositions.last % rowSize == 0) {
+          snakePositions.add(snakePositions.last + rowSize - 1);
+        } else {
+          snakePositions.add(snakePositions.last - 1);
+        }
+        break;
+      case snakeDirection.right:
+        //if the snake is at the right edge
+        if (snakePositions.last % rowSize == 9) {
+          snakePositions.add(snakePositions.last - rowSize + 1);
+        } else {
+          snakePositions.add(snakePositions.last + 1);
+        }
+        break;
+    }
+    // remove the tail
+    snakePositions.removeAt(0);
   }
 
   @override
@@ -42,7 +81,8 @@ class _HomeScreenState extends State<HomeScreen> {
         body: Column(
           children: [
             // score
-            Expanded(child: Container(
+            Expanded(
+                child: Container(
               child: Center(
                 child: Text(
                   'Score: ${snakePositions.length - 3}',
@@ -55,32 +95,55 @@ class _HomeScreenState extends State<HomeScreen> {
             )),
             Expanded(
               flex: 3,
-              child: GridView.builder(
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: rowSize,
-                ),
-                itemBuilder: (context, index) {
-                  if (snakePositions.contains(index)) {
-                    return const Pixel(
-                      type: PixelType.snake,
-                    );
-                  } else if (index == foodPosition) {
-                    return const Pixel(
-                      type: PixelType.food,
-                    );
-                  }
-                  else {
-                    return const Pixel(
-                      type: PixelType.blank,
-                    );
+              child: GestureDetector(
+                onVerticalDragUpdate: (details) {
+                  if (details.delta.dy > 0 &&
+                      currentDirection != snakeDirection.up) {
+                    currentDirection = snakeDirection.down;
+                  } else if (details.delta.dy < 0 &&
+                      currentDirection != snakeDirection.down) {
+                    // move up
+                    currentDirection = snakeDirection.up;
                   }
                 },
-                itemCount: totalNumberOfCells,
+                onHorizontalDragUpdate: (details) {
+                  if (details.delta.dx > 0 &&
+                      currentDirection != snakeDirection.left) {
+                    // move right
+                    currentDirection = snakeDirection.right;
+                  } else if (details.delta.dx < 0 &&
+                      currentDirection != snakeDirection.right) {
+                    // move left
+                    currentDirection = snakeDirection.left;
+                  }
+                },
+                child: GridView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: rowSize,
+                  ),
+                  itemBuilder: (context, index) {
+                    if (snakePositions.contains(index)) {
+                      return const Pixel(
+                        type: PixelType.snake,
+                      );
+                    } else if (index == foodPosition) {
+                      return const Pixel(
+                        type: PixelType.food,
+                      );
+                    } else {
+                      return const Pixel(
+                        type: PixelType.blank,
+                      );
+                    }
+                  },
+                  itemCount: totalNumberOfCells,
+                ),
               ),
             ),
             // play button
-            Expanded(child: Container(
+            Expanded(
+                child: Container(
               child: Center(
                 child: MaterialButton(
                   onPressed: startGame,
