@@ -33,7 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
     Timer.periodic(Duration(milliseconds: 200), (timer) {
       setState(() {
         // keep the snake moving
-        if(gameOver()){
+        if (gameOver()) {
           timer.cancel();
 
           // show dialog
@@ -47,6 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   TextButton(
                     onPressed: () {
                       snakePositions = [0, 1, 2];
+                      currentDirection = snakeDirection.right;
                       Navigator.of(context).pop();
                       startGame();
                     },
@@ -59,8 +60,6 @@ class _HomeScreenState extends State<HomeScreen> {
         }
 
         moveSnake();
-
-
       });
     });
   }
@@ -68,15 +67,17 @@ class _HomeScreenState extends State<HomeScreen> {
   void moveSnake() {
     switch (currentDirection) {
       case snakeDirection.up:
-        if(snakePositions.last < rowSize){
-          snakePositions.add(snakePositions.last + totalNumberOfCells - rowSize);
+        if (snakePositions.last < rowSize) {
+          snakePositions
+              .add(snakePositions.last + totalNumberOfCells - rowSize);
         } else {
           snakePositions.add(snakePositions.last - rowSize);
         }
         break;
       case snakeDirection.down:
-        if(snakePositions.last >= totalNumberOfCells - rowSize){
-          snakePositions.add(snakePositions.last - totalNumberOfCells + rowSize);
+        if (snakePositions.last >= totalNumberOfCells - rowSize) {
+          snakePositions
+              .add(snakePositions.last - totalNumberOfCells + rowSize);
         } else {
           snakePositions.add(snakePositions.last + rowSize);
         }
