@@ -33,7 +33,33 @@ class _HomeScreenState extends State<HomeScreen> {
     Timer.periodic(Duration(milliseconds: 200), (timer) {
       setState(() {
         // keep the snake moving
+        if(gameOver()){
+          timer.cancel();
+
+          // show dialog
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: const Text('Game Over'),
+                content: Text('Score: ${snakePositions.length - 3}'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      snakePositions = [0, 1, 2];
+                      Navigator.of(context).pop();
+                      startGame();
+                    },
+                    child: const Text('Play Again'),
+                  )
+                ],
+              );
+            },
+          );
+        }
+
         moveSnake();
+
 
       });
     });
@@ -88,6 +114,15 @@ class _HomeScreenState extends State<HomeScreen> {
     while (snakePositions.contains(foodPosition)) {
       foodPosition = Random().nextInt(totalNumberOfCells);
     }
+  }
+
+  // game over
+  bool gameOver() {
+    // the game is over if the snake hits itself
+    if (snakePositions.length != snakePositions.toSet().toList().length) {
+      return true;
+    }
+    return false;
   }
 
   @override
