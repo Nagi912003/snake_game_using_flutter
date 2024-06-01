@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:snake_game/pixel.dart';
 import 'package:snake_game/pixel_type.dart';
@@ -19,6 +21,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // food position
   int foodPosition = 55;
+
+  // start the game
+  void startGame(){
+    Timer.periodic(Duration(milliseconds: 200), (timer) {
+      setState(() {
+        // move the snake
+        // add a new head
+        snakePositions.add( snakePositions.last + 1);
+        // remove the tail
+        snakePositions.removeAt(0);
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Expanded(child: Container(
               child: Center(
                 child: MaterialButton(
-                  onPressed: () {},
+                  onPressed: startGame,
                   color: Colors.grey,
                   child: const Text('Play', style: TextStyle(fontSize: 40)),
                 ),
